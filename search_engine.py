@@ -8,14 +8,16 @@ from whoosh.analysis import NgramAnalyzer
 from whoosh.analysis import NgramWordAnalyzer
 
 
-
-
 from whoosh.index import create_in
 from whoosh.qparser import *
 from whoosh.fields import *
 from whoosh import scoring
 from whoosh import index
 import csv
+
+# Open ground truth file
+filename = open("./Ground_Truth.tsv")
+ground_truth = csv.reader(filename, delimiter="\t")
 
 analyzers = [SimpleAnalyzer(),StandardAnalyzer(),StemmingAnalyzer(),KeywordAnalyzer(),FancyAnalyzer(),LanguageAnalyzer("en")]
 
@@ -59,6 +61,7 @@ for selected_analyzer in analyzers:
     csv_reader.__next__()  # to skip the header: first line containing the name of each field.
     for record in csv_reader:
         query[record[0]] = record[1]
+    filename.close()
 
     #max_number_of_results = 5
 
@@ -78,8 +81,9 @@ for selected_analyzer in analyzers:
         searcher = ix.searcher(weighting=scoring_function)
 
         # Create tsv file to save results (all possible combinations of queries and documents)
-        with open('results'+str(temp)+'.tsv', 'w', newline='') as file:
-            writer = csv.writer(file , delimiter='\t')
+        with open('results'+str(temp)+'.tsv', 'w', newline='') as filename:
+            writer = csv.writer(filename , delimiter='\t')
+            reader = csv.reader(filename,delimiter="\t")
             writer.writerow(['Query_ID','Doc_ID','Rank','Score'])
 
             for x in range(1,226): #for each query
@@ -93,5 +97,7 @@ for selected_analyzer in analyzers:
                     # Save results in tsv file
                     for hit in results:
                         writer.writerow([str(x),hit['id'],str(hit.rank + 1),str(hit.score)])
-
+        filename.close()
     searcher.close()
+
+
