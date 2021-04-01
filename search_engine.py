@@ -4,6 +4,11 @@ from whoosh.analysis import StemmingAnalyzer
 from whoosh.analysis import KeywordAnalyzer
 from whoosh.analysis import FancyAnalyzer
 from whoosh.analysis import LanguageAnalyzer
+from whoosh.analysis import NgramAnalyzer
+from whoosh.analysis import NgramWordAnalyzer
+
+
+
 
 from whoosh.index import create_in
 from whoosh.qparser import *
@@ -14,7 +19,7 @@ import csv
 
 analyzers = [SimpleAnalyzer(),StandardAnalyzer(),StemmingAnalyzer(),KeywordAnalyzer(),FancyAnalyzer(),LanguageAnalyzer("en")]
 
-scoring = [scoring.Frequency(),scoring.TF_IDF()]
+scoring = [scoring.Frequency(),scoring.TF_IDF(),scoring.BM25F()]
 
 temp = 0
 # Define a Text-Analyzer 
@@ -62,6 +67,9 @@ for selected_analyzer in analyzers:
         if temp!=0 and scoring_function==scoring[0]:    #use frequency scoring only once
             continue
         temp+=1 #count search engines
+
+        if temp > 12: #i want 12 search engines
+            break
 
         # Create a QueryParser for parsing the input_query
         qp = QueryParser("content", ix.schema)
