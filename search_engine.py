@@ -45,28 +45,31 @@ csv_reader.__next__()  # to skip the header: first line containing the name of e
 for record in csv_reader:
     query[record[0]] = record[1]
 
-input_query = query['1']
-max_number_of_results = 5
+#max_number_of_results = 5
 
 # Select a Scoring-Function
 scoring_function = scoring.Frequency()
 
-# Create a QueryParser for parsing the input_query.
+# Create a QueryParser for parsing the input_query
 qp = QueryParser("content", ix.schema)
-parsed_query = qp.parse(input_query)  # parsing the query
-print("Input Query : " + input_query)
-print("Parsed Query: " + str(parsed_query))
 
 # Create a Searcher for the Index with the selected Scoring-Function 
 searcher = ix.searcher(weighting=scoring_function)
 
-# Perform a Search 
-results = searcher.search(parsed_query, limit=max_number_of_results)
+# Create tsv file to save results (all possible combinations of queries and documents)
+with open('results.tsv', 'w', newline='') as file:
+    writer = csv.writer(file , delimiter='\t')
+    writer.writerow(['Query_ID','Doc_ID','Rank','Score'])
 
-print()
-print("Rank" + "\t" + "DocID" + "\t" + "Score")
-for hit in results:
-    print(str(hit.rank + 1) + "\t" + hit['id'] + "\t" + str(hit.score))
+    for x in range(1,226): #for each query
+        if str(x) in query: #make sure that i dont get a keyerror
+            input_query = query[str(x)]
+            parsed_query = qp.parse(input_query)  # parsing the query
+
+            # Perform a Search 
+            results = searcher.search(parsed_query)#, limit=max_number_of_results)
+
+            # Save results in tsv file
+            for hit in results:
+                writer.writerow([str(x),hit['id'],str(hit.rank + 1),str(hit.score)])
 searcher.close()
-
-print()
