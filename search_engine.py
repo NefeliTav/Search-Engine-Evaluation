@@ -12,6 +12,7 @@ from whoosh import scoring
 from whoosh import index
 import csv
 import statistics
+import numpy as np
 
 def mrr (gt ,se):
     sum = 0
@@ -158,7 +159,6 @@ for selected_analyzer in analyzers:
                         else:
                             se[str(x)] = [hit['id']]
                     #print(temp,str(x),pak(gt, se, k,str(x)))
-                    #print(temp,str(x),r_precision(gt, se, str(x)))
                     tmp = r_precision(gt, se, str(x))
                     
                     if tmp != -1:
@@ -197,8 +197,15 @@ print("--------------")
 print("Min R-precision:")
 print(min_)
 print("--------------")
-print("Median R-precision:")
+print("1st and 3rd quartiles:")
 for conf in r_prec:
     med[conf] = statistics.median(sorted(r_prec[conf]))
-print(med)
+    print("Search engine no" ,conf)
+    print("\t1st quartile: ",np.percentile(r_prec[conf], 25))
+    print("\t3rd quartile: ",np.percentile(r_prec[conf], 75))
+    #print("median",np.percentile(r_prec[conf], 50)) #check that median is correct
 print("--------------")
+print("Median R-precision:")
+print(med)
+
+
