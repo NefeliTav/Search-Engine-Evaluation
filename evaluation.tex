@@ -1,0 +1,60 @@
+\documentclass{article}
+
+\usepackage[greek,english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\title{Search Engine Evaluation}
+\author{Nefeli Tavoulari}
+
+\begin{document}
+
+\maketitle
+
+\section{}
+    \begin{table}[h!]
+    \centering
+    \begin{tabular}{||c || c||} 
+    \hline
+
+    Search Engine Configuration &  MRR \\ [0.8ex] 
+    \hline\hline
+    Simple Analyzer + Frequency scoring (1) &  0.04753607503607503\\
+    Simple Analyzer + TF IDF scoring (2) &  0.11550144300144301\\ 
+    Simple Analyzer + BM25F scoring (3)  &  0.4075180375180375\\ 
+    Standard Analyzer + TF IDF scoring (4) & 0.29852813852813853 \\
+    Standard Analyzer + BM25F scoring (5) & 0.40067460317460324 \\
+    Stemming Analyzer + TF IDF scoring (6) & 0.3421284271284273 \\
+    Stemming Analyzer + BM25F scoring (7) & 0.44314574314574334 \\
+    Keyword Analyzer + TF IDF scoring (8) & 0.10582611832611834 \\
+    Keyword Analyzer + BM25F scoring (9) & 0.37595598845598854 \\
+    Fancy Analyzer + TF IDF scoring (10) & 0.3000432900432901 \\
+    Fancy Analyzer + BM25F scoring (11) & 0.4039213564213565 \\
+    Language Analyzer + TF IDF scoring (12) & 0.3541955266955267 \\ 
+     \hline
+    \end{tabular}
+    \end{table}
+
+    \begin{table}[h!]
+    \centering
+    \begin{tabular}{||c || c||c || c||c ||} 
+    \hline
+
+    Mean & 1°quartile & Median & 3°quartile \\ [0.8ex] 
+    \hline\hline
+    0.02092296592296592  & 0 & 0 & 0 \\
+    0.052657246967591796  & 0 & 0 & 0 \\
+    0.18626767694165816  & 0 & 0.14285714285714285 & 0.26704545454545453 \\
+    0.13047546410399072  & 0 & 0 & 0.2222222222222222 \\
+    0.1998576980316792  & 0 & 0.14285714285714285 & 0.3057692307692308\\
+    0.14544295133636825  & 0 & 0 & 0.25 \\
+    0.21204263430752457  & 0 & 0.14285714285714285 & 0.3333333333333333 \\ 
+    0.050168624478969304  & 0 & 0 & 0 \\
+    0.17827728349671926  & 0 & 0.14285714285714285 & 0.25\\
+    0.13086507449360113  & 0 & 0 & 0.2222222222222222 \\
+    0.2041867023606835  & 0 & 0.14285714285714285 & 0.3269230769230769 \\
+    0.1533002760040378  & 0 & 0.025 & 0.25\\ 
+     \hline
+    \end{tabular}
+    \end{table}
