@@ -15,9 +15,37 @@ from whoosh import scoring
 from whoosh import index
 import csv
 
+def evaluator (gt ,se ,k):
+    for query_id in se:
+        eval = 0
+        i = 0
+        print(query_id)
+        for doc_id in se[query_id]:
+            if i < k:
+                if query_id in gt.keys():
+                    if doc_id in gt[query_id]:
+                        eval += 1
+            i += 1
+        #print("\teval = ",eval)
+    #print("--------------")
+        print("\t",eval/min(k,len(gt)))
+    return eval/min(k,len(gt))
+
+k = 5
+
 # Open ground truth file
-filename = open("./Ground_Truth.tsv")
+filename = open("./Cranfield_DATASET/cran_Ground_Truth.tsv")
 ground_truth = csv.reader(filename, delimiter="\t")
+next(ground_truth)
+gt = {} #save ground truth in a dictionary, in order to economize time
+for row in ground_truth:
+    if row[0] in gt.keys():
+        gt[row[0]].append(row[1])
+    else:
+        gt[row[0]] = [row[1]]
+filename.close()
+#print(gt)
+
 
 analyzers = [SimpleAnalyzer(),StandardAnalyzer(),StemmingAnalyzer(),KeywordAnalyzer(),FancyAnalyzer(),LanguageAnalyzer("en")]
 
@@ -30,7 +58,7 @@ for selected_analyzer in analyzers:
     schema = Schema(id=ID(stored=True), content=TEXT(stored=False, analyzer=selected_analyzer))
 
     # Create an empty-Index according to the just defined Schema
-    directory_containing_the_index = './temp'
+    directory_containing_the_index = './index'
     create_in(directory_containing_the_index, schema)
     ix = index.open_dir(directory_containing_the_index)
 
@@ -83,9 +111,8 @@ for selected_analyzer in analyzers:
         # Create tsv file to save results (all possible combinations of queries and documents)
         with open('results'+str(temp)+'.tsv', 'w', newline='') as filename:
             writer = csv.writer(filename , delimiter='\t')
-            reader = csv.reader(filename,delimiter="\t")
             writer.writerow(['Query_ID','Doc_ID','Rank','Score'])
-
+            se = {} #save search engine results in dictionary to economize time
             for x in range(1,226): #for each query
                 if str(x) in query: #make sure that i dont get a keyerror
                     input_query = query[str(x)]
@@ -97,6 +124,11 @@ for selected_analyzer in analyzers:
                     # Save results in tsv file
                     for hit in results:
                         writer.writerow([str(x),hit['id'],str(hit.rank + 1),str(hit.score)])
+                        if str(x) in se.keys():
+                            se[str(x)].append(hit['id'])
+                        else:
+                            se[str(x)] = [hit['id']]
+        evaluator(gt, se, k)
         filename.close()
     searcher.close()
 
