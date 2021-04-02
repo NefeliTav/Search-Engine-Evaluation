@@ -4,9 +4,6 @@ from whoosh.analysis import StemmingAnalyzer
 from whoosh.analysis import KeywordAnalyzer
 from whoosh.analysis import FancyAnalyzer
 from whoosh.analysis import LanguageAnalyzer
-from whoosh.analysis import NgramAnalyzer
-from whoosh.analysis import NgramWordAnalyzer
-
 
 from whoosh.index import create_in
 from whoosh.qparser import *
@@ -15,21 +12,21 @@ from whoosh import scoring
 from whoosh import index
 import csv
 
-def evaluator (gt ,se ,k):
+def mrr (gt ,se ,k):
+    sum = 0
     for query_id in se:
         eval = 0
         i = 0
-        print(query_id)
         for doc_id in se[query_id]:
             if i < k:
                 if query_id in gt.keys():
                     if doc_id in gt[query_id]:
+                        if (eval == 0):
+                            sum += 1/(i+1)
                         eval += 1
             i += 1
-        #print("\teval = ",eval)
-    #print("--------------")
-        print("\t",eval/min(k,len(gt)))
-    return eval/min(k,len(gt))
+    print(1/(len(gt))*sum)
+    #return eval/min(k,len(gt[query_id]))
 
 k = 5
 
@@ -128,7 +125,7 @@ for selected_analyzer in analyzers:
                             se[str(x)].append(hit['id'])
                         else:
                             se[str(x)] = [hit['id']]
-        evaluator(gt, se, k)
+        mrr(gt, se, k)
         filename.close()
     searcher.close()
 
