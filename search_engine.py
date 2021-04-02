@@ -11,30 +11,55 @@ from whoosh.fields import *
 from whoosh import scoring
 from whoosh import index
 import csv
+import statistics
 
-def mrr (gt ,se ,k):
+def mrr (gt ,se):
     sum = 0
-    for query_id in se:
-        eval = 0
-        i = 0
-        for doc_id in se[query_id]:
-            if i < k:
-                if query_id in gt.keys():
-                    if doc_id in gt[query_id]:
-                        if (eval == 0):
-                            sum += 1/(i+1)
-                        eval += 1
-            i += 1
-    print(1/(len(gt))*sum)
-    #return eval/min(k,len(gt[query_id]))
+    for query_id in se:                             #for each query
+        rank = 0                                    #find position of first relevant result
+        for doc_id in se[query_id]:                 #for each document in results
+            if query_id in gt.keys():               #avoid getting a keyerror
+                    if doc_id in gt[query_id]:      #it is indeed a relevant document
+                        sum += 1/(rank+1)           #accumulate sum from all queries
+                        break                       #go to the next query
+            rank += 1                               
+    return 1/(len(gt))*sum
 
+def pak (gt ,se ,k, q):
+    sum = 0
+    eval = 0
+    i = 0
+    for doc_id in se[q]:
+        if i < k:
+            if q in gt.keys():
+                if doc_id in gt[q]:
+                    eval += 1    
+            i += 1 
+    if q in gt.keys():           
+        return eval/min(k,len(gt[q]))
+    return 0.0
+
+def r_precision (gt ,se ,q):
+    sum = 0
+    eval = 0
+    i = 0
+    for doc_id in se[q]:
+        if q in gt.keys(): 
+            if i < len(gt[q]):
+                if q in gt.keys():
+                    if doc_id in gt[q]:
+                        eval += 1    
+                i += 1 
+    if q in gt.keys(): 
+        return eval/len(gt[q])
+    return -1
 k = 5
-
+mean = {}
 # Open ground truth file
 filename = open("./Cranfield_DATASET/cran_Ground_Truth.tsv")
 ground_truth = csv.reader(filename, delimiter="\t")
 next(ground_truth)
-gt = {} #save ground truth in a dictionary, in order to economize time
+gt = {} #save ground truth in a dictionary, in order to save time
 for row in ground_truth:
     if row[0] in gt.keys():
         gt[row[0]].append(row[1])
@@ -47,8 +72,12 @@ filename.close()
 analyzers = [SimpleAnalyzer(),StandardAnalyzer(),StemmingAnalyzer(),KeywordAnalyzer(),FancyAnalyzer(),LanguageAnalyzer("en")]
 
 scoring = [scoring.Frequency(),scoring.TF_IDF(),scoring.BM25F()]
-
 temp = 0
+r_mean = {}
+r_prec = {}
+max_ = {}
+min_ = {}
+
 # Define a Text-Analyzer 
 for selected_analyzer in analyzers:
     # Create a Schema 
@@ -87,7 +116,6 @@ for selected_analyzer in analyzers:
     for record in csv_reader:
         query[record[0]] = record[1]
     filename.close()
-
     #max_number_of_results = 5
 
     # Select a Scoring-Function
@@ -109,9 +137,13 @@ for selected_analyzer in analyzers:
         with open('results'+str(temp)+'.tsv', 'w', newline='') as filename:
             writer = csv.writer(filename , delimiter='\t')
             writer.writerow(['Query_ID','Doc_ID','Rank','Score'])
-            se = {} #save search engine results in dictionary to economize time
+            se = {} #save search engine results in dictionary to save time
+            sum_r = 0
+            min_r = float("inf")
+            max_r = float("-inf") 
+            tmp = 0
             for x in range(1,226): #for each query
-                if str(x) in query: #make sure that i dont get a keyerror
+                if str(x) in query: #make sure that i dont get a keyerror e.g. 31 doesn't exist
                     input_query = query[str(x)]
                     parsed_query = qp.parse(input_query)  # parsing the query
 
@@ -125,8 +157,48 @@ for selected_analyzer in analyzers:
                             se[str(x)].append(hit['id'])
                         else:
                             se[str(x)] = [hit['id']]
-        mrr(gt, se, k)
+                    #print(temp,str(x),pak(gt, se, k,str(x)))
+                    #print(temp,str(x),r_precision(gt, se, str(x)))
+                    tmp = r_precision(gt, se, str(x))
+                    
+                    if tmp != -1:
+                        if temp in r_prec.keys():
+                            r_prec[temp].append(tmp)
+                        else:
+                            r_prec[temp] = [tmp]
+                        sum_r += tmp
+                        if tmp > max_r:
+                            max_r = tmp
+                        if tmp < min_r:
+                            min_r = tmp
+                            
+                        
+            max_[temp] = max_r
+            min_[temp] = min_r
+            r_mean[temp] = sum_r/len(gt)
+
+
+        mean[temp] = mrr(gt, se)
+        #print(temp, mean[temp])
         filename.close()
     searcher.close()
 
-
+#print({k: v for k, v in sorted(mean.items(), key=lambda x: x[1])})
+med = {}
+print("MRR:")
+print(mean)
+print("--------------")
+print("Mean R-precision:")
+print(r_mean)
+print("--------------")
+print("Max R-precision:")
+print(max_)
+print("--------------")
+print("Min R-precision:")
+print(min_)
+print("--------------")
+print("Median R-precision:")
+for conf in r_prec:
+    med[conf] = statistics.median(sorted(r_prec[conf]))
+print(med)
+print("--------------")
