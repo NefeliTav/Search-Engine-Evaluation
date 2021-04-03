@@ -38,7 +38,7 @@ def pak (gt ,se ,k, q):
             i += 1 
     if q in gt.keys():           
         return eval/min(k,len(gt[q]))
-    return 0.0
+    return -1
 
 def r_precision (gt ,se ,q):
     sum = 0
@@ -78,6 +78,7 @@ r_mean = {}
 r_prec = {}
 max_ = {}
 min_ = {}
+all_se = {}
 
 # Define a Text-Analyzer 
 for selected_analyzer in analyzers:
@@ -159,6 +160,7 @@ for selected_analyzer in analyzers:
                         else:
                             se[str(x)] = [hit['id']]
                     #print(temp,str(x),pak(gt, se, k,str(x)))
+                    """
                     tmp = r_precision(gt, se, str(x))
                     
                     if tmp != -1:
@@ -176,15 +178,20 @@ for selected_analyzer in analyzers:
             max_[temp] = max_r
             min_[temp] = min_r
             r_mean[temp] = sum_r/len(gt)
-
+            """
+            all_se[temp] = se
 
         mean[temp] = mrr(gt, se)
         #print(temp, mean[temp])
         filename.close()
     searcher.close()
 
+"""
 #print({k: v for k, v in sorted(mean.items(), key=lambda x: x[1])})
 med = {}
+quar1 = {}
+quar3 = {}
+
 print("MRR:")
 print(mean)
 print("--------------")
@@ -197,15 +204,21 @@ print("--------------")
 print("Min R-precision:")
 print(min_)
 print("--------------")
-print("1st and 3rd quartiles:")
 for conf in r_prec:
     med[conf] = statistics.median(sorted(r_prec[conf]))
-    print("Search engine no" ,conf)
-    print("\t1st quartile: ",np.percentile(r_prec[conf], 25))
-    print("\t3rd quartile: ",np.percentile(r_prec[conf], 75))
+    quar1[conf] = np.percentile(r_prec[conf], 25)
+    quar3[conf] = np.percentile(r_prec[conf], 75)
     #print("median",np.percentile(r_prec[conf], 50)) #check that median is correct
+print("1st quartile: ")
+print(quar1)
+print("--------------")
+print("3rd quartile: ")
+print(quar3)
 print("--------------")
 print("Median R-precision:")
 print(med)
-
-
+"""
+for key , se in all_se.items():
+    for q in se:
+        print(pak(gt,se,3,q))
+    print("------------------------------------------")
