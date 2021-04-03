@@ -13,6 +13,9 @@ from whoosh import index
 import csv
 import statistics
 import numpy as np
+import matplotlib.pyplot as plt
+import itertools
+
 
 def mrr (gt ,se):
     sum = 0
@@ -54,8 +57,7 @@ def r_precision (gt ,se ,q):
     if q in gt.keys(): 
         return eval/len(gt[q])
     return -1
-k = 5
-mean = {}
+
 # Open ground truth file
 filename = open("./Cranfield_DATASET/cran_Ground_Truth.tsv")
 ground_truth = csv.reader(filename, delimiter="\t")
@@ -71,14 +73,15 @@ filename.close()
 
 
 analyzers = [SimpleAnalyzer(),StandardAnalyzer(),StemmingAnalyzer(),KeywordAnalyzer(),FancyAnalyzer(),LanguageAnalyzer("en")]
-
 scoring = [scoring.Frequency(),scoring.TF_IDF(),scoring.BM25F()]
-temp = 0
-r_mean = {}
-r_prec = {}
-max_ = {}
-min_ = {}
-all_se = {}
+
+mean = {}   #dictionary with mrr for each search engine
+temp = 0    #index of each search engine
+r_mean = {} #mean r-precision for each search engine
+r_prec = {} #all r-precisions for each search engine
+max_ = {}   #dictionary with max r-precision for each search engine
+min_ = {}   #dictionary with min r-precision for each search engine
+all_se = {} #dictionary of dictionaries containing the search results
 
 # Define a Text-Analyzer 
 for selected_analyzer in analyzers:
@@ -154,7 +157,7 @@ for selected_analyzer in analyzers:
 
                     # Save results in tsv file
                     for hit in results:
-                        writer.writerow([str(x),hit['id'],str(hit.rank + 1),str(hit.score)])
+                        writer.writerow([str(x),hit['id'],str(hit.rank + 1),str(hit.score)]) #write in tsv file
                         if str(x) in se.keys():
                             se[str(x)].append(hit['id'])
                         else:
@@ -179,7 +182,7 @@ for selected_analyzer in analyzers:
             min_[temp] = min_r
             r_mean[temp] = sum_r/len(gt)
             """
-            all_se[temp] = se
+            all_se[temp] = se 
 
         mean[temp] = mrr(gt, se)
         #print(temp, mean[temp])
@@ -218,7 +221,12 @@ print("--------------")
 print("Median R-precision:")
 print(med)
 """
+sorted_mrr = {k: v for k, v in sorted(mean.items(), key=lambda x: x[1], reverse=True)} #sort by mrr
+sorted_mrr = dict(itertools.islice(sorted_mrr.items(),5)) #take top five search engines
+
 for key , se in all_se.items():
-    for q in se:
-        print(pak(gt,se,3,q))
-    print("------------------------------------------")
+    if key in sorted_mrr:
+        print(key)
+        for q in se:
+            pak(gt,se,3,q)
+        print("------------------------------------------")
