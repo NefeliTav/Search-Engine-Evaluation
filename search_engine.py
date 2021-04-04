@@ -51,12 +51,12 @@ def r_precision (gt ,se ,q):
     eval = 0
     i = 0
     for doc_id in se[q]:
-        if q in gt.keys(): 
-            if i < len(gt[q]):
+        if i < len(gt[q]):
+            if q in gt.keys(): 
                 if q in gt.keys():
                     if doc_id in gt[q]:
                         eval += 1    
-                i += 1 
+            i += 1 
     if q in gt.keys(): 
         return eval/len(gt[q])
     return -1
@@ -74,24 +74,25 @@ def ndcgak (gt, se, k, q):
                     relevance = 1 / math.log2(i+1)
                 else:
                     relevance = 0.0
-                dcg += relevance
+                dcg += relevance                    #accumulate relevance -> dcg
             i += 1                                  #go to next doc
     i = 1
     idcg = 0.0
     if q in gt.keys():                              #avoid getting a keyerror    
         for i in range(1,len(gt[q])+1):
             if i <= k:
-                idcg += 1 / math.log2(i+1)
+                idcg += 1 / math.log2(i+1)          #ideal situation -> first k docs are relevant/in ground truth
                 i += 1
     if idcg != 0.0:
+        #print(dcg/idcg)
         return dcg/idcg
     return -1
 
-# Open ground truth file
-filename = open("./Cranfield_DATASET/cran_Ground_Truth.tsv")
+
+filename = open("./Cranfield_DATASET/cran_Ground_Truth.tsv")    # Open ground truth file
 ground_truth = csv.reader(filename, delimiter="\t")
 next(ground_truth)
-gt = {} #save ground truth in a dictionary, in order to save time
+gt = {}                                                         #save ground truth in a dictionary, in order to save time
 for row in ground_truth:
     if row[0] in gt.keys():
         gt[row[0]].append(row[1])
@@ -192,7 +193,7 @@ for selected_analyzer in analyzers:
                         else:
                             se[str(x)] = [hit['id']]
                     #print(temp,str(x),pak(gt, se, k,str(x)))
-                    """
+                    
                     tmp = r_precision(gt, se, str(x))
                     
                     if tmp != -1:
@@ -207,10 +208,9 @@ for selected_analyzer in analyzers:
                             min_r = tmp
                             
                         
-            max_[temp] = max_r
+            max_[temp] = max_r 
             min_[temp] = min_r
             r_mean[temp] = sum_r/len(gt)
-            """
             all_se[temp] = se 
 
         mean[temp] = mrr(gt, se)
@@ -218,8 +218,7 @@ for selected_analyzer in analyzers:
         filename.close()
     searcher.close()
 
-"""
-#print({k: v for k, v in sorted(mean.items(), key=lambda x: x[1])})
+
 med = {}
 quar1 = {}
 quar3 = {}
@@ -249,7 +248,7 @@ print(quar3)
 print("--------------")
 print("Median R-precision:")
 print(med)
-"""
+
 sorted_mrr = {k: v for k, v in sorted(mean.items(), key=lambda x: x[1], reverse=True)} #sort by mrr
 sorted_mrr = dict(itertools.islice(sorted_mrr.items(),5)) #take top five search engines
 
@@ -264,15 +263,15 @@ x = [1, 3, 5, 10]
 plt.xlabel("k")
 plt.ylabel("average p@k")
 plt.title("Average p@k for top 5 search engines")
-for key , se in all_se.items():
-    if key in sorted_mrr:
+for key , se in all_se.items():                     #key = search engine index 
+    if key in sorted_mrr:                           #search engine is in top five
         #print(key)
-        for q in se:
-            result1 = pak(gt,se,1,q)
-            result2 = pak(gt,se,3,q)
-            result3 = pak(gt,se,5,q)
-            result4 = pak(gt,se,10,q)
-            if result1 != -1:
+        for q in se:                                #for every query
+            result1 = pak(gt,se,1,q) #k = 1
+            result2 = pak(gt,se,3,q) #k = 3
+            result3 = pak(gt,se,5,q) #k = 5
+            result4 = pak(gt,se,10,q)#k = 10
+            if result1 != -1:                       #if result = -1 ,that means thats the query doesnt exist in ground truth
                 total1 += result1
             if result2 != -1:
                 total2 += result2
