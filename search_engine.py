@@ -14,6 +14,7 @@ import csv
 import statistics
 import numpy as np
 import matplotlib.pyplot as plt
+import math 
 import itertools
 
 
@@ -32,7 +33,6 @@ def mrr (gt ,se):
 def pak (gt ,se ,k, q):
     if q not in gt.keys():                          #if query not in ground truth, exit
         return -1
-    sum = 0
     eval = 0
     i = 0
     for doc_id in se[q]:                            #for each document in results
@@ -48,7 +48,6 @@ def pak (gt ,se ,k, q):
 def r_precision (gt ,se ,q):
     if q not in gt.keys():                          #if query not in ground truth, exit
         return -1
-    sum = 0
     eval = 0
     i = 0
     for doc_id in se[q]:
@@ -60,6 +59,32 @@ def r_precision (gt ,se ,q):
                 i += 1 
     if q in gt.keys(): 
         return eval/len(gt[q])
+    return -1
+
+def ndcgak (gt, se, k, q):
+    if q not in gt.keys():                          #if query not in ground truth, exit
+        return -1
+    dcg = 0.0
+    relevance = 0.0
+    i = 1
+    for doc_id in se[q]:                            #for each document in results
+        if i <= k:                                  #check first k docs
+            if q in gt.keys():                      #avoid getting a keyerror           
+                if doc_id in gt[q]:                 #it is indeed a relevant document
+                    relevance = 1 / math.log2(i+1)
+                else:
+                    relevance = 0.0
+                dcg += relevance
+            i += 1                                  #go to next doc
+    i = 1
+    idcg = 0.0
+    if q in gt.keys():                              #avoid getting a keyerror    
+        for i in range(1,len(gt[q])+1):
+            if i <= k:
+                idcg += 1 / math.log2(i+1)
+                i += 1
+    if idcg != 0.0:
+        return dcg/idcg
     return -1
 
 # Open ground truth file
@@ -143,7 +168,7 @@ for selected_analyzer in analyzers:
         searcher = ix.searcher(weighting=scoring_function)
 
         # Create tsv file to save results (all possible combinations of queries and documents)
-        with open('results'+str(temp)+'.tsv', 'w', newline='') as filename:
+        with open('./search_engines/results'+str(temp)+'.tsv', 'w', newline='') as filename:
             writer = csv.writer(filename , delimiter='\t')
             writer.writerow(['Query_ID','Doc_ID','Rank','Score'])
             se = {} #save search engine results in dictionary to save time
@@ -228,6 +253,7 @@ print(med)
 sorted_mrr = {k: v for k, v in sorted(mean.items(), key=lambda x: x[1], reverse=True)} #sort by mrr
 sorted_mrr = dict(itertools.islice(sorted_mrr.items(),5)) #take top five search engines
 
+
 y = {}
 total1 = 0
 total2 = 0
@@ -246,6 +272,35 @@ for key , se in all_se.items():
             result2 = pak(gt,se,3,q)
             result3 = pak(gt,se,5,q)
             result4 = pak(gt,se,10,q)
+            if result1 != -1:
+                total1 += result1
+            if result2 != -1:
+                total2 += result2
+            if result3 != -1:
+                total3 += result3  
+            if result4 != -1:
+                total4 += result4 
+        #print(total1,total2,total3,total4)
+        plt.plot(x, [total1/len(gt),total2/len(gt),total3/len(gt),total4/len(gt)], label="search engine no "+str(key),marker='o')
+plt.legend()
+plt.xticks(np.arange(min(x), max(x)+1, X))
+plt.show()
+
+total1 = 0
+total2 = 0
+total3 = 0
+total4 = 0
+
+plt.xlabel("k")
+plt.ylabel("average nDCG")
+plt.title("Average nDCG for top 5 search engines")
+for key , se in all_se.items():
+    if key in sorted_mrr:
+        for q in se:
+            result1 = ndcgak(gt,se,1,q)
+            result2 = ndcgak(gt,se,3,q)
+            result3 = ndcgak(gt,se,5,q)
+            result4 = ndcgak(gt,se,10,q)
             if result1 != -1:
                 total1 += result1
             if result2 != -1:
