@@ -235,6 +235,9 @@ total3 = 0
 total4 = 0
 X = 1.0
 x = [1, 3, 5, 10]
+plt.xlabel("k")
+plt.ylabel("average p@k")
+plt.title("Average p@k for top 5 search engines")
 for key , se in all_se.items():
     if key in sorted_mrr:
         #print(key)
@@ -251,13 +254,8 @@ for key , se in all_se.items():
                 total3 += result3  
             if result4 != -1:
                 total4 += result4 
-        plt.xlabel("k")
-        plt.ylabel("average p@k")
-        plt.title("Average p@k for search engine number " + str(key))
-        #plt.plot([1, 3, 5, 10], [total1/len(gt),total2/len(gt),total3/len(gt),total4/len(gt)])
-        plt.plot([1, 3, 5, 10], [total1/len(gt),total2/len(gt),total3/len(gt),total4/len(gt)], color='green', linestyle='dashed', linewidth = 3,
-         marker='o', markerfacecolor='blue', markersize=12)
-        plt.xticks(np.arange(min(x), max(x)+1, X))
-        plt.show()
-#print(y)
-#print("------------------------------------------")
+        #print(total1,total2,total3,total4)
+        plt.plot(x, [total1/len(gt),total2/len(gt),total3/len(gt),total4/len(gt)], label="search engine no "+str(key),marker='o')
+plt.legend()
+plt.xticks(np.arange(min(x), max(x)+1, X))
+plt.show()
