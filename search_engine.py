@@ -25,25 +25,29 @@ def mrr (gt ,se):
             if query_id in gt.keys():               #avoid getting a keyerror
                     if doc_id in gt[query_id]:      #it is indeed a relevant document
                         sum += 1/(rank+1)           #accumulate sum from all queries
-                        break                       #go to the next query
+                        break                       #i found first relevant,go to the next query
             rank += 1                               
     return 1/(len(gt))*sum
 
 def pak (gt ,se ,k, q):
+    if q not in gt.keys():                          #if query not in ground truth, exit
+        return -1
     sum = 0
     eval = 0
     i = 0
-    for doc_id in se[q]:
-        if i < k:
-            if q in gt.keys():
-                if doc_id in gt[q]:
-                    eval += 1    
-            i += 1 
-    if q in gt.keys():           
+    for doc_id in se[q]:                            #for each document in results
+        if i < k:                                   #check first k docs
+            if q in gt.keys():                      #avoid getting a keyerror           
+                if doc_id in gt[q]:                 #it is indeed a relevant document
+                    eval += 1                       #increment counter
+            i += 1                                  #go to next doc
+    if q in gt.keys():                              #if query in ground truth
         return eval/min(k,len(gt[q]))
     return -1
 
 def r_precision (gt ,se ,q):
+    if q not in gt.keys():                          #if query not in ground truth, exit
+        return -1
     sum = 0
     eval = 0
     i = 0
@@ -224,9 +228,36 @@ print(med)
 sorted_mrr = {k: v for k, v in sorted(mean.items(), key=lambda x: x[1], reverse=True)} #sort by mrr
 sorted_mrr = dict(itertools.islice(sorted_mrr.items(),5)) #take top five search engines
 
+y = {}
+total1 = 0
+total2 = 0
+total3 = 0
+total4 = 0
+X = 1.0
+x = [1, 3, 5, 10]
 for key , se in all_se.items():
     if key in sorted_mrr:
-        print(key)
+        #print(key)
         for q in se:
-            pak(gt,se,3,q)
-        print("------------------------------------------")
+            result1 = pak(gt,se,1,q)
+            result2 = pak(gt,se,3,q)
+            result3 = pak(gt,se,5,q)
+            result4 = pak(gt,se,10,q)
+            if result1 != -1:
+                total1 += result1
+            if result2 != -1:
+                total2 += result2
+            if result3 != -1:
+                total3 += result3  
+            if result4 != -1:
+                total4 += result4 
+        plt.xlabel("k")
+        plt.ylabel("average p@k")
+        plt.title("Average p@k for search engine number " + str(key))
+        #plt.plot([1, 3, 5, 10], [total1/len(gt),total2/len(gt),total3/len(gt),total4/len(gt)])
+        plt.plot([1, 3, 5, 10], [total1/len(gt),total2/len(gt),total3/len(gt),total4/len(gt)], color='green', linestyle='dashed', linewidth = 3,
+         marker='o', markerfacecolor='blue', markersize=12)
+        plt.xticks(np.arange(min(x), max(x)+1, X))
+        plt.show()
+#print(y)
+#print("------------------------------------------")
