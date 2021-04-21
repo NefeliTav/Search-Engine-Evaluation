@@ -10,7 +10,7 @@ i = 0
 filename = open("./dataset/250K_lyrics_from_MetroLyrics.csv")
 reader = csv.reader(filename, delimiter=",")
 next(reader)
-results = open('./250K__test_sets_for_LSH.tsv', 'w', newline='')
+results = open('./results.tsv', 'w', newline='')
 writer = csv.writer(results, delimiter='\t')
 writer.writerow(['ID', 'ELEMENTS_IDS'])
 for row in reader:

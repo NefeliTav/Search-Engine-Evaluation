@@ -23,7 +23,6 @@ def mrr(gt, se):
                     # print(doc_id, query_id)
                     break  # i found first relevant,go to the next query
             rank += 1
-    # print("----------------------------")
     return 1/(len(gt))*sum
 
 
@@ -57,8 +56,6 @@ def r_precision(gt, se, q):
                         eval += 1
             i += 1
     if q in gt.keys():
-        # print(eval/len(gt[q]))
-        # print("===========================================")
         return eval/len(gt[q])
     return -1
 

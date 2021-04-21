@@ -4,6 +4,7 @@
 \usepackage[utf8x]{inputenc}
 \usepackage{natbib}
 \usepackage{graphicx}
+\graphicspath{ {./plots/} }
 
 \title{Search Engine Evaluation}
 \author{Nefeli Tavoulari}
@@ -21,17 +22,17 @@
     Search Engine Configuration &  MRR \\ [0.8ex] 
     \hline\hline
     Simple Analyzer + Frequency scoring (1) &  0.04753607503607503\\
-    Simple Analyzer + TF IDF scoring (2) &  0.11550144300144301\\ 
-    Simple Analyzer + BM25F scoring (3)  &  0.4075180375180375\\ 
-    Standard Analyzer + TF IDF scoring (4) & 0.29852813852813853 \\
-    Standard Analyzer + BM25F scoring (5) & 0.40067460317460324 \\
-    Stemming Analyzer + TF IDF scoring (6) & 0.3421284271284273 \\
-    Stemming Analyzer + BM25F scoring (7) & 0.44314574314574334 \\
+    Simple Analyzer + TF IDF scoring (2) &  0.11474386724386725\\ 
+    Simple Analyzer + BM25F scoring (3)  &  0.4037554112554113\\ 
+    Standard Analyzer + TF IDF scoring (4) & 0.2991197691197691 \\
+    Standard Analyzer + BM25F scoring (5) & 0.39869408369408377 \\
+    Stemming Analyzer + TF IDF scoring (6) & 0.34726911976911984 \\
+    Stemming Analyzer + BM25F scoring (7) & 0.44506854256854267 \\
     Keyword Analyzer + TF IDF scoring (8) & 0.10582611832611834 \\
-    Keyword Analyzer + BM25F scoring (9) & 0.37595598845598854 \\
-    Fancy Analyzer + TF IDF scoring (10) & 0.3000432900432901 \\
-    Fancy Analyzer + BM25F scoring (11) & 0.4039213564213565 \\
-    Language Analyzer + TF IDF scoring (12) & 0.3541955266955267 \\ 
+    Keyword Analyzer + BM25F scoring (9) & 0.37625901875901885 \\
+    Fancy Analyzer + TF IDF scoring (10) & 0.30063492063492064 \\
+    Fancy Analyzer + BM25F scoring (11) & 0.4067243867243867 \\
+    Language Analyzer + BM25F scoring (12) & 0.4474242424242425\\ 
      \hline
     \end{tabular}
     \end{table}
@@ -58,3 +59,11 @@
      \hline
     \end{tabular}
     \end{table}
+    \begin{center}
+        \includegraphics[width=.9\linewidth]{Figure_1}
+    \end{center}
+    \begin{center}
+        \includegraphics[width=.9\linewidth]{Figure_2}
+    \end{center}
+
+\end{document}

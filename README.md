@@ -14,6 +14,6 @@ to perform shingling:
 ### python3 near_duplicates.py
 
 to create min-hashing sketches and perform lsh:
-### java -Xmx5G tools.NearDuplicatesDetector lsh_plus_min_hashing 0.95 30 10 ./hash_functions/300.tsv ./250K__test_sets_for_LSH.tsv ./dataset/APPX_NDD__from_250K__test_sets_for_LSH__30_10.tsv
+### java -Xmx3G tools.NearDuplicatesDetector lsh_plus_min_hashing 0.95 20 15 ./data/300.tsv ./data/results.tsv ./data/near_duplicates.tsv
 
 This program finds near-duplicates according to the lyrics of 250K songs, by creating shingles,min-hashing sketches and lsh, using some java tools.
