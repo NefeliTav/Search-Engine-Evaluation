@@ -2,8 +2,8 @@
 
 This program implements 12 search engines , with different combinations of analyzers and scoring functions ,using the Whoosh library.
 After indexing a collection of documents (html files) , it checks the search engines in order to find the one with the best performance,
-namely the one with the most relevant results (comparing the results to the ground truth).For this, some standard algorithms are used,like p@k, mean reciprocal rank, r-precision, nDCG@k.
-In the .tex file ,there is a report , where some statistics are presented concerning the search engine configuartions, mean,median,min,max,1st and 3rd quartile.
+namely the one with the most relevant results (comparing the results to the ground truth). For this, some standard algorithms are used,like p@k, mean reciprocal rank, r-precision, nDCG@k.
+In the .tex file ,there is a report , where some statistics are presented concerning the search engine configuartions.
 Also, for each search engine ,a .tsv file is created that contains the results of the search.
 
 To find the best search engines :
